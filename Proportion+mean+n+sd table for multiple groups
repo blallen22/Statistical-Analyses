@@ -1,0 +1,29 @@
+#creates a table that includes, for any particular survey question, the "n," mean, standard deviation, and proportion of 
+#survey responses respective to scale, e.g., 5% of responses on a 10-point scale were 1, 3% were a 2, etc. 
+#note that you can apply this to multiple groups. the below shows the overall n/mean/sd/prop in addition to those of three subgroups
+#the below also assumes that the Year = 2017; the year can of course be whatever you would like
+
+prop.table.ten<-function (Q)
+{
+  combined.n<-aggregate(Q~Year, FUN = "length")
+  combined.mean<-aggregate(Q~Year, FUN = "mean")
+  combined.sd<-aggregate(Q~Year, FUN = "sd")
+  combined.prop<-prop.table(table(Q, Year),2)
+  n<-aggregate(Q[Year==2017]~group[Year==2017], FUN = "length")
+  mean<-aggregate(Q[Year==2017]~group[Year==2017], FUN = "mean")
+  sd <-aggregate(Q[Year==2017]~group[Year==2017], FUN = "sd")
+  prop <-prop.table(table(Q[Year==2017],group[Year==2017]),2)
+  group1.n<-aggregate(Q[group=="group1"]~Year[group=="group1"], FUN = "length")
+  group1.mean<-aggregate(Q[group=="group1"]~Year[group=="group1"], FUN = "mean")
+  group1.sd<-aggregate(Q[group=="group1"]~Year[group=="group1"], FUN = "sd")
+  group1.prop<-prop.table(table(Q[group=="group1"], Year[group=="group1"]),2)
+  group2.n<-aggregate(Q[group=="group2"]~Year[group=="group2"], FUN = "length")
+  group2.mean<-aggregate(Q[group=="group2"]~Year[group=="group2"], FUN = "mean")
+  group2.sd<-aggregate(Q[group=="group2"]~Year[group=="group2"], FUN = "sd")
+  group2.prop<-prop.table(table(Q[group=="group2"], Year[group=="group2"]),2)
+  group3.n<-aggregate(Q[group=="group3"]~Year[group=="group3"], FUN = "length")
+  group3.mean<-aggregate(Q[group=="group3"]~Year[group=="group3"], FUN = "mean")
+  group3.sd<-aggregate(Q[group=="group3"]~Year[group=="group3"], FUN = "sd")
+  group3.prop<-prop.table(table(Q[group=="group3"], Year[group=="group3"]),2)
+  return(list(cbind(combined.n, combined.mean, combined.sd),combined.prop, cbind(n, mean, sd), prop, cbind(group1.n,group1.mean,group1.sd), group1.prop, cbind(group2.n,group2.mean,group2.sd), group2.prop, cbind(group3.n,group3.mean,group3.sd), group3.prop))
+}
