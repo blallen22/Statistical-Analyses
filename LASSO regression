@@ -1,0 +1,103 @@
+#create a data frame for our lasso regression
+#The default model used in the package is the Guassian linear model or "least squares"
+library(glmnet)
+Q1.lasso<-data.frame(Year,Q1,variable1,variable2,etc.)
+
+#subset by year and remove the "Year" variable
+drops<-"Year"
+Q1.lasso<-Q1.lasso[Year==2017,]
+Q1.lasso<-Q1.lasso[,-1]
+Q1.lasso<-Q1.lasso[,!(names(Q1.lasso) %in% drops)]
+
+#remove NAs. We want to only include complete cases.
+Q1.lasso<-na.omit(Q1.lasso)
+
+#always set your seed so you can have reproducible results
+set.seed(10)
+
+#determine how you want to break out the train and test sets. Here we use 80/20.
+index1 <- sample(1:nrow(Q1.lasso), nrow(Q1.lasso)*.8)
+
+#create train set
+train1 <- Q1.lasso[index1,]
+
+#create test set
+test1 <- Q1.lasso[-index1,]
+
+#create "x" for the lasso function
+x = train1[,!(colnames(train1) %in% c("Q1"))]
+
+#create a sparse model matrix to speed up the process. 
+#Given that sparse matrices are very memory-efficient, lasso regression requires a sparse model matrix.
+Q1.x.lasso = sparse.model.matrix(~.-1, data=x, contrasts.arg = lapply(x[,sapply(x, is.factor)], contrasts, contrasts=FALSE))
+
+#create "y" for the lasso function
+Q1.y.lasso<-train1$Q1
+
+#create the actual lasso model
+Q1.cvfit<-cv.glmnet(Q1.x.lasso,Q1.y.lasso,alpha=1,nfold=10)
+
+#visualize the coefficients in context of lambda. Each curve corresponds to a variable. 
+#It shows the path of its coefficient against the L1-norm of the whole coefficient vector as lambda varies. 
+#The top axis indicates the number of non-zero coefficients at the current lambda, which is the effective degrees of freedom (df) for the lasso. 
+plot(Q1.cvfit$glmnet.fit, xvar = "lambda", label = TRUE)
+
+#visualize the coefficients in context of fraction deviance explained. Fraction deviance explained is analogous to r-squared.
+plot(Q1.cvfit$glmnet.fit, xvar = "dev", label = TRUE)
+abline(v = log(Q1.cvfit$lambda.1se), lty=2, col="red")
+
+#includes the cross-validation curve (red dotted line), and upper and lower standard deviation curves along the sequence (error bars). 
+#Two selected lambdas are indicated by the vertical dotted lines.
+plot(Q1.cvfit) 
+
+#summary of the glmnet path at each step. 
+#column titles from left to right: number of nonzero coefficients (Df), percent (of null) deviance explained (%dev), and the value of lambda.
+print(Q1.cvfit,s=0.1)
+
+#obtain the actual coefficients at one or more lambdas within the range of the sequence
+coef(Q1.cvfit,s=0.1)
+
+#lambda.min is the value of lambda that gives minimum mean cross-validated error. 
+#The other lambda saved is lambda.1se, which gives the most regularized model such that error is within one standard error of the minimum.
+Q1.cvfit$lambda.min 
+
+#gives the most regularized model such that error is within one standard error of the minimum.
+Q1.cvfit$lambda.1se
+
+#coefficients at lambda that gives minimum mean cross-validated error
+coef(Q1.cvfit,s="lambda.min")
+
+#coefficients at lambda that gives error within one standard error of the minimum
+coef(Q1.cvfit,s="lambda.1se")
+
+#nifty way to present top 10 coef in clean and neat table
+library(knitr)
+#we use lambda.1se because it is more conservative than lambda.min
+print_glmnet_coefs <- function(cvfit, s="lambda.1se") {
+    ind <- which(coef(cvfit, s=s) != 0)
+    df <- data.frame(
+        feature=rownames(coef(cvfit, s=s))[ind],
+        coeficient=coef(cvfit, s=s)[ind]
+    )
+    kable(df, digits =c(6))
+}
+head(print_glmnet_coefs(Q1.cvfit), 10)
+
+#show all coefficients (sometimes there are more coefficients than the 10 above, so it is good practice to always call this, too)
+print_glmnet_coefs(Q1.cvfit)
+
+#predict(Q1.cvfit, newx=x[1:5],s="lambda.min")
+
+#summarize accuracy by comparing root mean squared error against standard deviation
+vx = test1[,!(colnames(test1) %in% c("Q1"))]
+vx.mat = sparse.model.matrix(~.-1, data=vx, contrasts.arg = lapply(vx[,sapply(vx, is.factor)], contrasts, contrasts=FALSE))
+
+phatV = matrix(0.0,nrow(test1),1)
+phatV = predict(Q1.cvfit, newx = vx.mat, type = "response", s = Q1.cvfit$lambda.1se)
+
+#summarize accuracy via root mse
+Q1.testy.lasso<-test1$Q1
+rootmse<-sqrt(mean((Q1.testy.lasso - phatV)^2)) 
+#we use RMSE because it gives extra weight to large errors, while MAE (mean absolute error) gives equal weight to all errors.
+print(rootmse)
+#we compare rootmse to Q1 standard deviation to evaluate.
