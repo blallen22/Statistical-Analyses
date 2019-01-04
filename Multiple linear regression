@@ -49,20 +49,20 @@ outlierTest(reg.final) # Bonferonni p-value for most extreme obs
 qqPlot(reg.final, main="QQ Plot") #qq plot for studentized resid 
 leveragePlots(reg.final) # leverage plots
 
-# Influential Observations
-# added variable plots 
+#Influential Observations
+#added variable plots 
 av.Plots(reg.final)
-# Cook's D plot
-# identify D values > 4/(n-k-1) 
+#Cook's D plot
+#identify D values > 4/(n-k-1) 
 cutoff <- 4/((nrow(reg1.2017)-length(reg.final$coefficients)-2)) 
 plot(reg.final, which=4, cook.levels=cutoff)
-# Influence Plot 
+#Influence Plot 
 influencePlot(reg.final,	id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
 
-# Normality of Residuals
-# qq plot for studentized resid
+#Normality of Residuals
+#qq plot for studentized resid
 qqPlot(reg.final, main="QQ Plot")
-# distribution of studentized residuals
+#distribution of studentized residuals
 library(MASS)
 sresid <- studres(reg.final) 
 hist(sresid, freq=FALSE, 
@@ -71,26 +71,26 @@ xfit<-seq(min(sresid),max(sresid),length=40)
 yfit<-dnorm(xfit) 
 lines(xfit, yfit)
 
-# Evaluate homoscedasticity
-# non-constant error variance test
+#Evaluate homoscedasticity
+#non-constant error variance test
 ncvTest(reg.final)
-# plot studentized residuals vs. fitted values 
+#plot studentized residuals vs. fitted values 
 spreadLevelPlot(reg.final)
 
-# Evaluate Collinearity
+#Evaluate Collinearity
 vif(reg.final) # variance inflation factors 
 sqrt(vif(reg.final)) > 2 # problem?
 
-# Evaluate Nonlinearity
-# component + residual plot 
+#Evaluate Nonlinearity
+#component + residual plot 
 crPlots(reg.final)
-# Ceres plots 
+#Ceres plots 
 ceresPlots(reg.final)
 
-# Test for Autocorrelated Errors
+#Test for Autocorrelated Errors
 durbinWatsonTest(reg.final)
 
-# Global test of model assumptions
+#Global test of model assumptions
 library(gvlma)
 gvmodel <- gvlma(reg.final) 
 summary(gvmodel)
