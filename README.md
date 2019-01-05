@@ -1,5 +1,5 @@
 # survey-analyses
-This captures R code for conducting survey analyses. Chunks include variable creation, data cleaning, proportion/sd/n/mean tables, significance testing, correlation matrices, snake plot, multiple linear regression models, k-means clustering, and lasso regression. Note: sensitive information has been protected by the removal of certain variables and certain functions, such as an important false discovery rate control.
+This captures R code for conducting survey analyses. Chunks include variable creation, data cleaning, proportion/sd/n/mean tables, significance testing, correlation matrices, snake plot, multiple linear regression models, k-means clustering, and elastic net regression. Note: sensitive information has been protected by the removal of certain variables and certain functions, such as an important false discovery rate control.
 
 Prequisites:
 
