@@ -3,43 +3,43 @@ library(caret)
 library(ISLR)
 
 #create a data frame
-Q1.elastic<-data.frame(Year,program,Q1,other.variables)
+Q1.elastic <- data.frame(Year, program, Q1,other.variables)
 
 #to filter by "Year" and then remove the "Year" variable
-drops<-"Year"
-Q1.elastic<-Q1.elastic[Year==2018,]
-Q1.elastic<-Q1.elastic[,-1]
-Q1.elastic<-Q1.elastic[,!(names(Q1.elastic) %in% drops)]
+drops <- "Year"
+Q1.elastic <- Q1.elastic[Year==2018,]
+Q1.elastic <- Q1.elastic[,-1]
+Q1.elastic <- Q1.elastic[,!(names(Q1.elastic) %in% drops)]
 
-drops<-"program"
-Q1.elastic<-Q1.elastic[program=="Program1",]
-Q1.elastic<-Q1.elastic[,-1]
-Q1.elastic<-Q1.elastic[,!(names(Q1.elastic) %in% drops)]
+drops <- "program"
+Q1.elastic <- Q1.elastic[program=="Program1",]
+Q1.elastic <- Q1.elastic[,-1]
+Q1.elastic <- Q1.elastic[,!(names(Q1.elastic) %in% drops)]
 
 #omit incomplete cases
-Q1.elastic<-na.omit(Q1.elastic)
+Q1.elastic <- na.omit(Q1.elastic)
 set.seed(10)
 
 
 #set up alpha and lambda grid to search for a pair that minimizes cross validation error
-lambda.grid<-10^seq(2,-2,length=100)
-alpha.grid<-seq(0,1,length=10)
+lambda.grid <- 10^seq(2, -2, length=100)
+alpha.grid <- seq(0, 1, length=10)
 
 #set up cross validation method for train function
-trnCtrl=trainControl(
-  method="repeatedCV",
-  number=10,
-  repeats=5)
+trnCtrl = trainControl(
+  method = "repeatedCV",
+  number = 10,
+  repeats = 5)
 
 #set up search grid for alpha and lambda parameters
-srchGrd = expand.grid(.alpha=alpha.grid,.lambda=lambda.grid)
+srchGrd <- expand.grid(.alpha=alpha.grid, .lambda=lambda.grid)
 
 #perform cross validation forecasting Q1 based on all features
-train<-train(Q1~.,data=Q1.elastic,
-             method="glmnet",
-             tuneGrid=srchGrd,
-             trControl=trnCtrl,
-             standardize=TRUE,maxit=1000)
+train <- train(Q1~., data = Q1.elastic,
+             method = "glmnet",
+             tuneGrid = srchGrd,
+             trControl = trnCtrl,
+             standardize = TRUE, maxit=1000)
 
 #plot cross validation performance
 plot(train)
@@ -51,10 +51,10 @@ attributes(train)
 train$bestTune
 
 #retrieve best model (model with best alpha)
-glmnet.model<-train$finalModel
+glmnet.model <- train$finalModel
 
 #retrieve coefficients of the final model using optimal lambda
-coef(glmnet.model,s=train$bestTune$lambda)
+coef(glmnet.model, s=train$bestTune$lambda)
 
 pref.lambda <- train$bestTune$lambda
 
@@ -63,8 +63,8 @@ library(knitr)
 print_glmnet_coefs <- function(cvfit, s="pref.lambda") {
     ind <- which(coef(cvfit, s=s) != 0)
     df <- data.frame(
-        feature=rownames(coef(cvfit, s=s))[ind],
-        coefficient=coef(cvfit, s=s)[ind]
+        feature = rownames(coef(cvfit, s=s))[ind],
+        coefficient = coef(cvfit, s=s)[ind]
     )
     kable(df, digits =c(6))
 }
