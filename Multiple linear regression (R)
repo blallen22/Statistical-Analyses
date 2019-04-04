@@ -1,124 +1,125 @@
-#create a new data frame for regression models. We do this to only include the variables we are interested in.
-regression1<-data.frame(Q1,Year,variable1,variable2, etc.)
+# create a new data frame for regression models. We do this to only include the variables we are interested in.
+regression1 <- data.frame(Q1, Year, variable1, variable2, etc.)
 
-#take a look at the first few rows of the data frame to ensure that there aren't any errors in how the data frame was created
+# take a look at the first few rows of the data frame to ensure that there aren't any errors in how the data frame was created
 head(regression1)
 
-#if we are only interested in applying a regression for one year, subset the data frame by year
-reg1.2017<-subset(regression1, Year==2017)
+# if we are only interested in applying a regression for one year, subset the data frame by year
+reg1.2017 <- subset(regression1, Year==2017)
 
-#if we want to relevel a variable so that there is a "default" we are "solving" against, we use relevel(). Example below is gender
+# if we want to relevel a variable so that there is a "default" we are "solving" against, we use relevel(). Example below is gender
 reg1.2017$gender <- relevel(reg1.2017$gender, ref = "M")
 
-#na.omit() returns the data frame with incomplete cases removed
-reg1.2017<-na.omit(reg1.2017) 
+# na.omit() returns the data frame with incomplete cases removed
+reg1.2017 <- na.omit(reg1.2017) 
 
-#always set your seed so you can have reproducible results
+# always set your seed so you can have reproducible results
 set.seed(10)
 
-#determine how you want to split your train and test data. Here we use an 80/20 approach
+# determine how you want to split your train and test data. Here we use an 80/20 approach
 index1 <- sample(1:nrow(reg1.2017), nrow(reg1.2017)*.8)
 
-#create train dataset
+# create train dataset
 train1 <- reg1.2017[index1,] 
 
-#create test dataset
+# create test dataset
 test1 <- reg1.2017[-index1,]
 
-#create the first model
-reg1<-glm(Q1~.-Year,data=train)
+# create the first model
+reg1 <- glm(Q1~.-Year, data=train)
 
-#I like to employ a series of partial F-tests to handpick a model that controls for variables of interest.
-#here we are simultaneously creating our first model (reg1) and getting the summary output. 
-summary(reg1<-lm(Q1~.-Year,data=train1))
+# I like to employ a series of partial F-tests to handpick a model that controls for variables of interest.
+# here we are simultaneously creating our first model (reg1) and getting the summary output. 
+summary(reg1<-lm(Q1~.-Year, data=train1))
 
-#remove the variables that have the largest p-values. 
-#NOTE that we will keep in variables that we want to control for, regardless of their p-values. 
-summary(reg2<-lm(Q1~.-Year-variable1-variable2-variable3-variable4, data=train1))
+# remove the variables that have the largest p-values. 
+# NOTE that we will keep in variables that we want to control for, regardless of their p-values. 
+summary(reg2 <- lm(Q1~.-Year-variable1-variable2-variable3-variable4, data=train1))
 
-#this ANOVA compares the two models, and lets us know if the variables we removed were in fact significant to the model. 
-#If the variables were significant to the model, we then figure out which variables those were by adding them back to the original model individually.
+# this ANOVA compares the two models, and lets us know if the variables we removed were in fact significant to the model. 
+# If the variables were significant to the model, we then figure out which variables those were by adding them back to the original model individually.
 anova(reg1,reg2)
 
-#continue this process until the only remaining variables are the controls and the significant variables
+# continue this process until the only remaining variables are the controls and the significant variables
 reg.final
 
-#conduct regression diagnostics as required
+# conduct regression diagnostics as required
 # Assessing Outliers
 outlierTest(reg.final) # Bonferonni p-value for most extreme obs
 qqPlot(reg.final, main="QQ Plot") #qq plot for studentized resid 
 leveragePlots(reg.final) # leverage plots
 
-#Influential Observations
-#added variable plots 
+# Influential Observations
+# added variable plots 
 av.Plots(reg.final)
-#Cook's D plot
-#identify D values > 4/(n-k-1) 
+# Cook's D plot
+# identify D values > 4/(n-k-1) 
 cutoff <- 4/((nrow(reg1.2017)-length(reg.final$coefficients)-2)) 
-plot(reg.final, which=4, cook.levels=cutoff)
-#Influence Plot 
+plot(reg.final, which=4, cook.levels = cutoff)
+# Influence Plot 
 influencePlot(reg.final,	id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
 
-#Normality of Residuals
-#qq plot for studentized resid
+# Normality of Residuals
+# qq plot for studentized resid
 qqPlot(reg.final, main="QQ Plot")
-#distribution of studentized residuals
+# distribution of studentized residuals
 library(MASS)
 sresid <- studres(reg.final) 
 hist(sresid, freq=FALSE, 
-   main="Distribution of Studentized Residuals")
-xfit<-seq(min(sresid),max(sresid),length=40) 
-yfit<-dnorm(xfit) 
+   main = "Distribution of Studentized Residuals")
+xfit <- seq(min(sresid), max(sresid),length=40) 
+yfit <- dnorm(xfit) 
 lines(xfit, yfit)
 
-#Evaluate homoscedasticity
-#non-constant error variance test
+# Evaluate homoscedasticity
+# non-constant error variance test
 ncvTest(reg.final)
-#plot studentized residuals vs. fitted values 
+# plot studentized residuals vs. fitted values 
 spreadLevelPlot(reg.final)
 
-#Evaluate Collinearity
+# Evaluate Collinearity
 vif(reg.final) # variance inflation factors 
-sqrt(vif(reg.final)) > 2 # problem?
+sqrt(vif(reg.final)) > 2
 
-#Evaluate Nonlinearity
-#component + residual plot 
+# Evaluate Nonlinearity
+# component + residual plot 
 crPlots(reg.final)
-#Ceres plots 
+# Ceres plots 
 ceresPlots(reg.final)
 
-#Test for Autocorrelated Errors
+# Test for Autocorrelated Errors
 durbinWatsonTest(reg.final)
 
-#Global test of model assumptions
+# Global test of model assumptions
 library(gvlma)
 gvmodel <- gvlma(reg.final) 
 summary(gvmodel)
 
-#forward stepwise
-#now we will create a forward stepwise regression model
-#create the null model
-null<-lm(Q1~1,data=train1)
-#create the full model
-full<-lm(Q1~.-Year+(.-Year)^2,data=train1)
+# forward stepwise
+# now we will create a forward stepwise regression model
+# create the null model
+null <- lm(Q1~1, data=train1)
+# create the full model
+full <- lm(Q1~.-Year+(.-Year)^2, data=train1)
 full
-#run the forward stepwise regression - this will select variables via a forward stepwise algorithm
-fwdstep<-step(null,scope=formula(full),direction="forward",k=log(length(train1)))
-#get the summary of the forward stepwise model
+
+# run the forward stepwise regression - this will select variables via a forward stepwise algorithm
+fwdstep <- step(null, scope = formula(full), direction = "forward", k = log(length(train1)))
+# get the summary of the forward stepwise model
 summary(fwdstep)
 
-#validation with MSE (Mean Squared Error)
-#list the two final models: our hand-picked partial F-test model, and the forward stepwise model
-models <- list(reg.final,fwdstep)
-#calculate predicted values
+# validation with MSE (Mean Squared Error)
+# list the two final models: our hand-picked partial F-test model, and the forward stepwise model
+models <- list(reg.final, fwdstep)
+# calculate predicted values
 preds <- sapply(models, predict, newdata=test1)
-#calculate the error
+# calculate the error
 error <- apply(preds, 2, '-', test1$Q1)
-#round the MSE
+# round the MSE
 round(mse <- apply(error^2, 2, mean),5)
 
-#BIC
-#calculate the Bayesian Information Criterion. This is a method for selecting a model. The lower BIC in this case is preferred.
+# BIC
+# calculate the Bayesian Information Criterion. This is a method for selecting a model. The lower BIC in this case is preferred.
 BIC <- c(reg.final=extractAIC(reg.final, k=log(length(train1)))[2],
          fwdstep=extractAIC(fwdstep, k=log(length(train1)))[2])
 BIC 
