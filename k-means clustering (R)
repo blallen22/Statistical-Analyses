@@ -1,93 +1,93 @@
-#ensure you have the requisite packages
+# load the requisite packages
 library(cluster)
 library(dplyr)
 
-#create a data frame of variables
-clust<-data.frame(Year,variable1,variable2,etc.)
+# create a data frame of variables
+clust <- data.frame(Year, variable1, variable2, etc.)
 
-#to subset the data by year using some fun piping, apply the below
-drops<-"Year"
-clust2<-clust[Year==2017,]
-clust2<-clust2[,-1]
-clust2<-clust2[,!(names(clust2) %in% drops)]
+# to subset the data by year using some fun piping, apply the below
+drops <- "Year"
+clust2 <- clust[Year==2017,]
+clust2 <- clust2[,-1]
+clust2 <- clust2[,!(names(clust2) %in% drops)]
 
-#omit NAs
-clust2<-na.omit(clust2)
+# omit NAs
+clust2 <- na.omit(clust2)
 
-#standardize if necessary
-standardizedclust<-clust2 %>% mutate_each_(funs(scale(.) %>% as.vector), vars=c("variable1","variable2",etc.))
+# standardize if necessary
+standardizedclust <- clust2 %>% mutate_each_(funs(scale(.) %>% as.vector), vars = c("variable1", "variable2", etc.))
 
-#check the head to ensure that standardization took place without mistake
+# check the head to ensure that standardization took place without mistake
 head(standardizedclust)
 
-#determine the the optimal number of clusters
+# determine the the optimal number of clusters
 set.seed(10)
-wss <- (nrow(standardizedclust)-1)*sum(apply(standardizedclust,2,var))
+wss <- (nrow(standardizedclust)-1)*sum(apply(standardizedclust, 2, var))
   for (i in 2:15) wss[i] <- sum(kmeans(standardizedclust,
-                                       centers=i)$withinss)
-plot(1:15, wss, type="b", xlab="Number of clusters",
-     ylab="Within groups sum of squares")
-#the above should result in an elbow plot. the bend in the elbow is hopefully obvious. If not...
+                                       centers = i)$withinss)
+plot(1:15, wss, type = "b", xlab = "Number of clusters",
+     ylab = "Within groups sum of squares")
+# the above should result in an elbow plot. the bend in the elbow is hopefully obvious. If not...
 
-#...apply a silhouette analysis (http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html)
-#the below follows an informed hunch that there may be three, four, five, or six clusters
-k3<-kmeans(standardizedclust,3)
-#compute all pairwise dissimilarities between observations
-dissE3<-daisy(standardizedclust) 
-sk3<-silhouette(k3$cl,dissE3)
+# ...apply a silhouette analysis (http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html)
+# the below follows an informed hunch that there may be three, four, five, or six clusters
+k3 <- kmeans(standardizedclust, 3)
+# compute all pairwise dissimilarities between observations
+dissE3 <- daisy(standardizedclust) 
+sk3 <- silhouette(k3$cl, dissE3)
 plot(sk3)
-dE3.2<-dissE3^2
-sk3.2<-silhouette(k3$cl,dE3.2)
+dE3.2 <- dissE3^2
+sk3.2 <- silhouette(k3$cl, dE3.2)
 plot(sk3.2) 
 
-aggregate(standardizedclust,by=list(k3$cluster),FUN=mean) #plot
-standardizedclust<-data.frame(standardizedclust,k3$cluster)
-clusplot(standardizedclust,k3$cluster,color=TRUE,lines=0, plotchar = TRUE)
+aggregate(standardizedclust, by = list(k3$cluster), FUN = mean) # plot
+standardizedclust <- data.frame(standardizedclust, k3$cluster)
+clusplot(standardizedclust, k3$cluster, color = TRUE, lines=0, plotchar = TRUE)
 
 
-k4<-kmeans(standardizedclust,4)
-dissE4<-daisy(standardizedclust) #compute all pairwise dissimilarities between observations
-sk4<-silhouette(k4$cl,dissE4)
-plot(sk4) #average silhouette width: 0.12 #2017 avg. silhouette - 0.1
-dE4.2<-dissE4^2
-sk4.2<-silhouette(k4$cl,dE4.2)
-plot(sk4.2) #average silhouette width: 0.20 - cluster 3 is negative #2017 avg. silhouette - 0.1
+k4 <- kmeans(standardizedclust, 4)
+dissE4 <- daisy(standardizedclust) # compute all pairwise dissimilarities between observations
+sk4 <- silhouette(k4$cl, dissE4)
+plot(sk4) # average silhouette width: 0.12 #2017 avg. silhouette - 0.1
+dE4.2 <- dissE4^2
+sk4.2 <- silhouette(k4$cl, dE4.2)
+plot(sk4.2) # average silhouette width: 0.20 - cluster 3 is negative #2017 avg. silhouette - 0.1
 
-aggregate(standardizedclust,by=list(k4$cluster),FUN=mean) #plot
-standardizedclust<-data.frame(standardizedclust,k4$cluster)
-clusplot(standardizedclust,k4$cluster,color=TRUE,lines=0, plotchar = TRUE)
+aggregate(standardizedclust, by = list(k4$cluster), FUN = mean) # plot
+standardizedclust <- data.frame(standardizedclust, k4$cluster)
+clusplot(standardizedclust, k4$cluster, color = TRUE, lines = 0, plotchar = TRUE)
 
-k5<-kmeans(standardizedclust,5)
-#compute all pairwise dissimilarities between observations
-dissE5<-daisy(standardizedclust) 
-sk5<-silhouette(k5$cl,dissE5)
+k5 <- kmeans(standardizedclust, 5)
+# compute all pairwise dissimilarities between observations
+dissE5 <- daisy(standardizedclust) 
+sk5 <- silhouette(k5$cl, dissE5)
 plot(sk5)
-dE5.2<-dissE5^2
-sk5.2<-silhouette(k5$cl,dE5.2)
+dE5.2 <- dissE5^2
+sk5.2 <- silhouette(k5$cl, dE5.2)
 plot(sk5.2)
 
-aggregate(standardizedclust,by=list(k5$cluster),FUN=mean) #plot
-standardizedclust<-data.frame(standardizedclust,k5$cluster)
-clusplot(standardizedclust,k5$cluster,color=TRUE,lines=0, plotchar = TRUE)
+aggregate(standardizedclust, by = list(k5$cluster), FUN = mean) # plot
+standardizedclust <- data.frame(standardizedclust, k5$cluster)
+clusplot(standardizedclust, k5$cluster, color = TRUE, lines = 0, plotchar = TRUE)
 
-k6<-kmeans(standardizedclust,6)
-#compute all pairwise dissimilarities between observations
-dissE6<-daisy(standardizedclust) 
-sk6<-silhouette(k6$cl,dissE6)
+k6 <- kmeans(standardizedclust, 6)
+# compute all pairwise dissimilarities between observations
+dissE6 <- daisy(standardizedclust) 
+sk6 <- silhouette(k6$cl, dissE6)
 plot(sk6)
-dE6.2<-dissE6^2
-sk6.2<-silhouette(k6$cl,dE6.2)
+dE6.2 <- dissE6^2
+sk6.2 <- silhouette(k6$cl, dE6.2)
 plot(sk6.2)
 
-aggregate(standardizedclust,by=list(k6$cluster),FUN=mean) #plot
-standardizedclust<-data.frame(standardizedclust,k6$cluster)
-clusplot(standardizedclust,k6$cluster,color=TRUE,lines=0, plotchar = TRUE)
+aggregate(standardizedclust, by = list(k6$cluster), FUN = mean) # plot
+standardizedclust <- data.frame(standardizedclust, k6$cluster)
+clusplot(standardizedclust, k6$cluster, color = TRUE, lines = 0, plotchar = TRUE)
 
-#evaluate the resulting average silhouette scores on a range from -1 to 1
-#silhouette coefficients near 1 show that the sample is far away from neighboring clusters
-#0 indicates that the sample is on or near the boundary between two neighboring clusters
-#negative values show that samples might have been assigned to the wrong cluster
+# evaluate the resulting average silhouette scores on a range from -1 to 1
+# silhouette coefficients near 1 show that the sample is far away from neighboring clusters
+# 0 indicates that the sample is on or near the boundary between two neighboring clusters
+# negative values show that samples might have been assigned to the wrong cluster
 
-#once the optimal number of clusters has been found, it is time to determine what differences exist between clusters
-#determine the means, n's, etc., on respective variables by cluster
-#apply t.tests, chisq.tests, anova, etc. to determine statistically significant differences between clusters
+# once the optimal number of clusters has been found, it is time to determine what differences exist between clusters
+# determine the means, n's, etc., on respective variables by cluster
+# apply t.tests, chisq.tests, anova, etc. to determine statistically significant differences between clusters
