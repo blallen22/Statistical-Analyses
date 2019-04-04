@@ -1,14 +1,14 @@
-#create a correlation "matrix" for survey questions
-#this shows the correlation between the listed survey questions
-#this can of course include other variables beyond survey questions
-#the below applies the write.csv() function to export to a .csv file, but you could instead 
+# create a correlation "matrix" for survey questions
+# this shows the correlation between the listed survey questions
+# this can of course include other variables beyond survey questions
+# the below applies the write.csv() function to export to a .csv file
 
-correlation.matrix<-data.frame(cbind(Year,Q1,Q2,Q4,Q5,Q7.1,Q7.2,Q7.3,Q7.4,Q7.5,Q7.6,Q7.7,Q7.8,Q7.9,Q7.10,Q7.11,Q7.12,Q7.13,
+correlation.matrix <- data.frame(cbind(Year,Q1,Q2,Q4,Q5,Q7.1,Q7.2,Q7.3,Q7.4,Q7.5,Q7.6,Q7.7,Q7.8,Q7.9,Q7.10,Q7.11,Q7.12,Q7.13,
 Q7.14,Q7.15,Q7.16,Q7.17,Q7.18,Q7.19,Q11.1,Q11.2,Q11.3,Q11.4,Q11.5,Q11.6,Q11.7,Q11.8,Q11.9,Q11.10,Q11.11,Q17,Q18.1,Q18.2,Q22,
 Q24.1,Q24.2,Q24.3,Q27))
 tail(correlation.matrix)
-correlation.matrix<-correlation.matrix[Year==2017,]
-correlation.matrix<-correlation.matrix[,-1]
+correlation.matrix <- correlation.matrix[Year==2017,]
+correlation.matrix <- correlation.matrix[,-1]
 str(correlation.matrix)
-overall.cor <- cor(correlation.matrix,use="pairwise.complete.obs",method="pearson")
-write.csv(overall.cor,file.choose())
+overall.cor <- cor(correlation.matrix, use="pairwise.complete.obs", method="pearson")
+write.csv(overall.cor, file.choose())
