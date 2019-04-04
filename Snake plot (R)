@@ -1,23 +1,23 @@
-#create snake plots
-#this snake plot compares three groups' average responses to multiple 10-point scale survey questions
-#the below output will be on a scale from 5.5-10.0, which I selected given knowledge of specific survey question means. Adjust as necessary
-#you'll need your data to be in the right format. this example requires:
+# create snake plots
+# this snake plot compares three groups' average responses to multiple 10-point scale survey questions
+# the below output will be on a scale from 5.5-10.0, which I selected given knowledge of specific survey question means. Adjust as necessary
+# you'll need your data to be in the right format. this example requires:
 # - one variable to be the survey question identifier
 # - one variable of group1 means
 # - one variable of group2 means
 # - one variable of group3 means
 
-data<- read.csv("file")
+data <- read.csv("file")
 library(reshape2)
 data
-questions<-data$questions
-group1<-data$group1
-group2<-data$group2
-group3<-data$group3
-plot.data <- melt(data,id="questions")
+questions <- data$questions
+group1 <- data$group1
+group2 <- data$group2
+group3 <- data$group3
+plot.data <- melt(data, id="questions")
 library(ggplot2)
-ggplot(plot.data,aes(y=value, x=questions, colour=variable))+ theme_bw()+geom_line(size=2)+coord_flip() + scale_x_reverse(breaks=1:20)+
-geom_point(size=4)+ylab("Y label") + ggtitle("Overall Title")+theme(axis.text.y = element_blank(),axis.title.y=element_blank(),
-axis.text.x=element_text(size=15),axis.title.x=element_text(size=15), title=element_text(size=18))+
-scale_color_manual(values=c("#224D8C", "#2C7F70", "#FCBB5D"))+scale_y_continuous(limits=c(5.5,10),
-breaks=c(5.5,6,6.5,7,7.5,8,8.5,9,9.5,10.0))
+ggplot(plot.data, aes(y=value, x=questions, colour=variable)) + theme_bw() + geom_line(size=2) + coord_flip() + scale_x_reverse(breaks=1:20)+
+geom_point(size=4) + ylab("Y label") + ggtitle("Overall Title") + theme(axis.text.y = element_blank(), axis.title.y = element_blank(),
+axis.text.x = element_text(size=15), axis.title.x = element_text(size=15), title = element_text(size=18)) + 
+scale_color_manual(values = c("#224D8C", "#2C7F70", "#FCBB5D")) + scale_y_continuous(limits = c(5.5,10),
+breaks = c(5.5,6,6.5,7,7.5,8,8.5,9,9.5,10.0))
