@@ -1,10 +1,10 @@
-#this false discovery rate control applies the Benjamini-Hochberg (BH) procedure to reduce the proportion of expected false positives
-#first things first - store all of the p-values of interest
-#there are many ways to store p-values. I recommend finding the method that works best for you.
-#the below will allow you to rank your p-values from smallest to largest
-#it also visualizes the p-value cutoff at a selected q
+# this false discovery rate control applies the Benjamini-Hochberg (BH) procedure to reduce the proportion of expected false positives
+# first things first - store all of the p-values of interest
+# there are many ways to store p-values. I recommend finding the method that works best for you.
+# the below will allow you to rank your p-values from smallest to largest
+# it also visualizes the p-value cutoff at a selected q
 
-#create the false discovery rate function to determine our p-value cutoff
+# create the false discovery rate function to determine our p-value cutoff
 fdr_cut <- function(pvals, q){
   pvals <- pvals[!is.na(pvals)]
   n <- length(pvals)
@@ -14,7 +14,7 @@ fdr_cut <- function(pvals, q){
   sig[pvals<max(pvals[sig])] <- TRUE
   
   o <- order(pvals)
-  plot(pvals[o], log="xy", col=c("grey60","red")[factor(sig[o])], pch=20, 
+  plot(pvals[o], log="xy", col=c("grey60", "red")[factor(sig[o])], pch=20, 
        ylab="p-values", xlab="tests ordered by p-value", main = paste('FDR =',q))
   lines(1:n, q*(1:n)/n)
   
@@ -22,7 +22,7 @@ fdr_cut <- function(pvals, q){
 }
 
 #p-value cutoff if we want to be confident that only 5% of tests may result in expected false positives 
-fdr_cut(all.t.test.pvals,.05)
+fdr_cut(all.t.test.pvals, .05)
 
 #p-value cutoff if we want to be confident that only 10% of tests may result in expected false positives 
-fdr_cut(all.t.test.pvals,.10)
+fdr_cut(all.t.test.pvals, .10)
