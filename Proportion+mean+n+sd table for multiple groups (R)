@@ -1,5 +1,5 @@
-# creates a table that includes, for any particular survey question, the "n," mean, standard deviation, and proportion of 
-# survey responses respective to scale, e.g., 5% of responses on a 10-point scale were 1, 3% were a 2, etc. 
+# creates a table that includes, for any particular variable, the "n," mean, standard deviation, and proportion of 
+# groupings within that variable that are respective to scale, e.g., for a survey question, 5% of responses on a 10-point scale were 1, 3% were a 2, etc. 
 # note that you can apply this to multiple groups. the below shows the overall n/mean/sd/prop in addition to those of three subgroups
 # the below also assumes that the Year = 2017; the year can of course be whatever you would like
 
