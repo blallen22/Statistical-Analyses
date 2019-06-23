@@ -1,5 +1,5 @@
 # Statistical Analyses
-Chunks include variable creation, data cleaning, proportion/sd/n/mean tables, significance testing, correlation matrices, snake plot, multiple linear regression models, k-means clustering, and elastic net regression. Note: sensitive information has been protected by the removal of certain variables and certain functions, such as an important false discovery rate control.
+Chunks include variable creation, data cleaning, proportion/sd/n/mean tables, significance testing, correlation matrices, snake plot, multiple linear regression models, k-means clustering, and elastic net regression.
 
 Prequisites:
 
