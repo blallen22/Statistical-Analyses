@@ -1,5 +1,5 @@
 # create a new data frame for regression models. We do this to only include the variables we are interested in.
-regression1 <- data.frame(Q1, Year, variable1, variable2, etc.)
+regression1 <- data.frame(Q1, Year, variable_1, variable_2, etc.)
 
 # take a look at the first few rows of the data frame to ensure that there aren't any errors in how the data frame was created
 head(regression1)
@@ -14,7 +14,7 @@ reg1.2017$gender <- relevel(reg1.2017$gender, ref = "M")
 reg1.2017 <- na.omit(reg1.2017) 
 
 # always set your seed so you can have reproducible results
-set.seed(10)
+set.seed(123)
 
 # determine how you want to split your train and test data. Here we use an 80/20 approach
 index1 <- sample(1:nrow(reg1.2017), nrow(reg1.2017)*.8)
@@ -34,7 +34,7 @@ summary(reg1<-lm(Q1~.-Year, data=train1))
 
 # remove the variables that have the largest p-values. 
 # NOTE that we will keep in variables that we want to control for, regardless of their p-values. 
-summary(reg2 <- lm(Q1~.-Year-variable1-variable2-variable3-variable4, data=train1))
+summary(reg2 <- lm(Q1~.-Year-variable_1-variable_2-variable_3-variable_4, data=train1))
 
 # this ANOVA compares the two models, and lets us know if the variables we removed were in fact significant to the model. 
 # If the variables were significant to the model, we then figure out which variables those were by adding them back to the original model individually.
@@ -46,22 +46,27 @@ reg.final
 # conduct regression diagnostics as required
 # Assessing Outliers
 outlierTest(reg.final) # Bonferonni p-value for most extreme obs
+
 qqPlot(reg.final, main="QQ Plot") #qq plot for studentized resid 
+
 leveragePlots(reg.final) # leverage plots
 
 # Influential Observations
 # added variable plots 
 av.Plots(reg.final)
+
 # Cook's D plot
 # identify D values > 4/(n-k-1) 
 cutoff <- 4/((nrow(reg1.2017)-length(reg.final$coefficients)-2)) 
 plot(reg.final, which=4, cook.levels = cutoff)
+
 # Influence Plot 
 influencePlot(reg.final,	id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
 
 # Normality of Residuals
 # qq plot for studentized resid
 qqPlot(reg.final, main="QQ Plot")
+
 # distribution of studentized residuals
 library(MASS)
 sresid <- studres(reg.final) 
@@ -74,6 +79,7 @@ lines(xfit, yfit)
 # Evaluate homoscedasticity
 # non-constant error variance test
 ncvTest(reg.final)
+
 # plot studentized residuals vs. fitted values 
 spreadLevelPlot(reg.final)
 
@@ -84,6 +90,7 @@ sqrt(vif(reg.final)) > 2
 # Evaluate Nonlinearity
 # component + residual plot 
 crPlots(reg.final)
+
 # Ceres plots 
 ceresPlots(reg.final)
 
@@ -99,6 +106,7 @@ summary(gvmodel)
 # now we will create a forward stepwise regression model
 # create the null model
 null <- lm(Q1~1, data=train1)
+
 # create the full model
 full <- lm(Q1~.-Year+(.-Year)^2, data=train1)
 full
