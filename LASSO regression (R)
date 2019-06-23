@@ -1,7 +1,6 @@
 # create a data frame for our lasso regression
-# The default model used in the package is the Guassian linear model or "least squares"
 library(glmnet)
-Q1.lasso <- data.frame(Year, Q1, variable1, variable2, etc.)
+Q1.lasso <- data.frame(Year, Q1, variable_1, variable_2, etc.)
 
 # subset by year and remove the "Year" variable
 drops <- "Year"
@@ -13,7 +12,7 @@ Q1.lasso <- Q1.lasso[,!(names(Q1.lasso) %in% drops)]
 Q1.lasso <- na.omit(Q1.lasso)
 
 # always set your seed so you can have reproducible results
-set.seed(10)
+set.seed(123)
 
 # determine how you want to break out the train and test sets. Here we use 80/20.
 index1 <- sample(1:nrow(Q1.lasso), nrow(Q1.lasso)*.8)
