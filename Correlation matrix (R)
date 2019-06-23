@@ -1,0 +1,17 @@
+# create a correlation matrix
+# this shows the correlation between variables in an x by y matrix
+
+correlation.matrix <- data.frame(cbind(Year, variable_1, variable_2, variable_3, variable_4, variable_5, variable_6, variable_7 variable_8))
+
+# subset the matrix by a variable. In this example, let's use the "Year" variable
+correlation.matrix <- correlation.matrix[Year==2017,]
+correlation.matrix <- correlation.matrix[,-1]
+
+# take a look at the structure of the matrix
+str(correlation.matrix)
+
+# use the cor() function to calculate the correlation coefficients
+overall.cor <- cor(correlation.matrix, use="pairwise.complete.obs", method="pearson")
+
+# write to a csv with write.csv()
+write.csv(overall.cor, file.choose())
