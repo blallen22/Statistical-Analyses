@@ -1,4 +1,3 @@
-# create snake plots
 # this snake plot compares three groups' average responses to multiple 10-point scale survey questions
 # the below output will be on a scale from 5.5-10.0, which I selected given knowledge of specific survey question means. Adjust as necessary
 # you'll need your data to be in the right format. this example requires:
@@ -9,7 +8,7 @@
 
 data <- read.csv("file")
 library(reshape2)
-data
+str(data)
 questions <- data$questions
 group1 <- data$group1
 group2 <- data$group2
