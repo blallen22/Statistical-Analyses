@@ -1,11 +1,12 @@
 library(glmnet)
 library(caret)
 library(ISLR)
+set.seed(123)
 
-#create a data frame
-Q1.elastic <- data.frame(Year, program, Q1,other.variables)
+# create a data frame
+Q1.elastic <- data.frame(Year, program, Q1, variable_1, variable_2, variable_3, variable_4, variable_5, variable_6)
 
-#to filter by "Year" and then remove the "Year" variable
+# to subset by "Year" and then remove the "Year" variable
 drops <- "Year"
 Q1.elastic <- Q1.elastic[Year==2018,]
 Q1.elastic <- Q1.elastic[,-1]
@@ -16,49 +17,57 @@ Q1.elastic <- Q1.elastic[program=="Program1",]
 Q1.elastic <- Q1.elastic[,-1]
 Q1.elastic <- Q1.elastic[,!(names(Q1.elastic) %in% drops)]
 
-#omit incomplete cases
+# take a look at how many observations would be lost when we omit incomplete cases
+# use this to determine if certain variables are more hassle than it's worth to include
+na_count <-sapply(Q1.elastic, function(y) sum(length(which(is.na(y)))))
+
+na_count <- data.frame(na_count)
+
+na_count
+
+# omit incomplete cases
 Q1.elastic <- na.omit(Q1.elastic)
-set.seed(10)
 
+# consider conducting additional testing to see if the resulting dataset is adequately representative of the overall population
 
-#set up alpha and lambda grid to search for a pair that minimizes cross validation error
+# set up alpha and lambda grid to search for a pair that minimizes cross validation error
 lambda.grid <- 10^seq(2, -2, length=100)
 alpha.grid <- seq(0, 1, length=10)
 
-#set up cross validation method for train function
+# set up cross validation method for train function
 trnCtrl = trainControl(
   method = "repeatedCV",
   number = 10,
   repeats = 5)
 
-#set up search grid for alpha and lambda parameters
+# set up search grid for alpha and lambda parameters
 srchGrd <- expand.grid(.alpha=alpha.grid, .lambda=lambda.grid)
 
-#perform cross validation forecasting Q1 based on all features
+# perform cross validation forecasting Q1 based on all features
 train <- train(Q1~., data = Q1.elastic,
              method = "glmnet",
              tuneGrid = srchGrd,
              trControl = trnCtrl,
              standardize = TRUE, maxit=1000)
 
-#plot cross validation performance
+# plot cross validation performance
 plot(train)
 
-#list available attributes of train object
+# list available attributes of train object
 attributes(train)
 
-#return best tuning parameters
+# return best tuning parameters
 train$bestTune
 
-#retrieve best model (model with best alpha)
+# retrieve best model (model with best alpha)
 glmnet.model <- train$finalModel
 
-#retrieve coefficients of the final model using optimal lambda
-coef(glmnet.model, s=train$bestTune$lambda)
+# retrieve coefficients of the final model using optimal lambda
+coef(glmnet.model, s = train$bestTune$lambda)
 
 pref.lambda <- train$bestTune$lambda
 
-#trying to print in a more aesthetically pleasing way
+# print in a more aesthetically pleasing way
 library(knitr)
 print_glmnet_coefs <- function(cvfit, s="pref.lambda") {
     ind <- which(coef(cvfit, s=s) != 0)
@@ -69,5 +78,5 @@ print_glmnet_coefs <- function(cvfit, s="pref.lambda") {
     kable(df, digits =c(6))
 }
 
-#print
+# print
 print_glmnet_coefs(glmnet.model,pref.lambda)
